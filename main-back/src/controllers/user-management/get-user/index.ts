@@ -4,6 +4,7 @@ import { User } from "models/user";
 import { SuccessResponse, SuccessResponseR } from "utils/responses";
 
 import { GetUserParamsSchema, GetUserResponseSchema } from "./req-res";
+import { serializeUser, UserSerialized } from "./serializer";
 
 export const getUser = async (
   app: FastifyInstance,
@@ -20,7 +21,7 @@ export const getUser = async (
         response: GetUserResponseSchema,
       },
     },
-    async (request): Promise<SuccessResponseR<User>> => {
+    async (request): Promise<SuccessResponseR<UserSerialized>> => {
       const user = await User.findOne({
         where: {
           id: request.params.id,
@@ -31,7 +32,9 @@ export const getUser = async (
         throw new Error(`There is no user with this id`);
       }
 
-      return SuccessResponse.create(request.id, user);
+      const userSerialized = serializeUser(user);
+
+      return SuccessResponse.create(request.id, userSerialized);
     }
   );
 };

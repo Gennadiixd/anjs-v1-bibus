@@ -50,6 +50,7 @@
     "start": "NODE_PATH=./build node build/apps/main-gql/index.js",
     "test": "jest --passWithNoTests",
     "build": "rimraf build && tsc -P tsconfig.build.json",
+    "build:full": "rimraf build && tsc -P tsconfig.build.json",
     "dev:mvc": "npm run build && NODE_PATH=./build node build/index.js"
   },
   "jest": {

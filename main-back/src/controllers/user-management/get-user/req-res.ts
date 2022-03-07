@@ -26,8 +26,11 @@ export const GetUserOkResponseDataSchema = {
       type: "string",
       description: "user role",
     },
+    createdAt: {
+      description: "user created at date",
+      type: "string",
+    },
   },
-  // How to use custom types like email, createdAt ?
   required: ["id", "role"],
   additionalProperties: false,
 } as const;
