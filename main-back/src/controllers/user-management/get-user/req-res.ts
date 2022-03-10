@@ -31,7 +31,7 @@ export const GetUserOkResponseDataSchema = {
       type: "string",
     },
   },
-  required: ["id", "role"],
+  required: ["id", "role", "createdAt"],
   additionalProperties: false,
 } as const;
 

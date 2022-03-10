@@ -23,7 +23,8 @@
       "*": ["src/*"],
       "modules": ["src/modules/*"],
       "libs": ["src/libs/*"],
-      "apps": ["src/apps/*"]
+      "apps": ["src/apps/*"],
+      "database": ["src/database"]
     }
   }
 }
