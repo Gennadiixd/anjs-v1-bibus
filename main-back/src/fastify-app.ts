@@ -1,22 +1,12 @@
-import {config} from "config";
-import {AuthController} from "controllers/auth";
-import {
-  AuthLoginBodySchema,
-  AuthLoginResponsesSchema, AuthLogoutResponsesSchema,
-  AuthRegisterBodySchema,
-  AuthRegisterResponsesSchema, AuthRequestTokenBodySchema, AuthRequestTokenResponsesSchema
-} from "controllers/auth.req-res";
-import {UserController} from "controllers/user";
-import {UserGetOneParamsSchema, UserUpdateBodySchema} from "controllers/user.req-res";
-import {emailSender} from "email-sender";
+import { config } from "config";
+import { initAuthDomainRoutes } from "controllers/authentication";
 import Fastify, { FastifyInstance } from "fastify";
 import fastifySwagger from "fastify-swagger";
-import {FromSchema} from "json-schema-to-ts";
-import {User} from "models/user";
-import {JWTToken} from "utils/jwt-tokens";
-import {v4} from "uuid";
+import { User } from "models/user";
+import { JWTToken } from "utils/jwt-tokens";
+import { v4 } from "uuid";
 
-import {logger} from "./logger";
+import { logger } from "./logger";
 
 declare module "fastify" {
   interface FastifyRequest {
@@ -58,76 +48,9 @@ app.addSchema({
 
 app.decorateRequest("userId", "");
 
-const authController = new AuthController(
-  logger,
-  emailSender,
-  config.jwtToken.secret,
-)
-
-const userController = new UserController(
-  logger,
-)
-
 // . ROUTER
 // . AUTH PREFIX
-app.register((authRoutes, opts, done) => {
-  authRoutes.post<{
-    Body: FromSchema<typeof AuthRegisterBodySchema>;
-    // Reply: AuthRegisterResponsesSchema;
-  }>(
-    "/register",
-    {
-      schema: {
-        body: AuthRegisterBodySchema,
-        response: AuthRegisterResponsesSchema,
-      },
-    },
-    async (request, reply) => {
-      return authController.register(
-        request,
-        reply
-      )
-    })
-
-  authRoutes.post<{
-    Body: FromSchema<typeof AuthLoginBodySchema>;
-    // Reply: AuthRegisterResponsesSchema;
-  }>(
-    "/login",
-    {
-      schema: {
-        body: AuthLoginBodySchema,
-        response: AuthLoginResponsesSchema,
-      },
-    },
-    async (request, reply) => {
-      return authController.login(
-        request,
-        reply
-      )
-    })
-
-  authRoutes.post<{
-    Body: FromSchema<typeof AuthRequestTokenBodySchema>;
-    // Reply: AuthRequestTokenResponsesSchema;
-  }>(
-    "/request-token",
-    {
-      schema: {
-        body: AuthRequestTokenBodySchema,
-        response: AuthRequestTokenResponsesSchema,
-      },
-    },
-    async (request, reply) => {
-      return authController.requestToken(
-        request,
-        reply
-      )
-    })
-  done()
-}, {
-  prefix: "/auth"
-})
+initAuthDomainRoutes(app, config.jwtToken.secret);
 
 // . AUTHENTICATED
 app.register(async (childServer, opts, done) => {
@@ -152,106 +75,38 @@ app.register(async (childServer, opts, done) => {
       throw new Error(`Permission denied`);
     }
 
-    const decoded = JWTToken.verify(config.jwtToken.secret, token)
+    const decoded = JWTToken.verify(config.jwtToken.secret, token);
 
     const user = await User.findOne({
       where: {
         id: decoded.userId,
       },
-    })
+    });
 
     if (!user) {
       throw new Error(`Permission denied`);
     }
 
-    const jwtToken = await user.jwtTokenById(decoded.id)
+    const jwtToken = await user.jwtTokenById(decoded.id);
 
     if (!jwtToken || !jwtToken.active()) {
-      throw new Error(`Permission denied`)
+      throw new Error(`Permission denied`);
     }
 
     // eslint-disable-next-line require-atomic-updates
     request.userId = user.id;
   });
 
-  childServer.register((authRoutes, opts, done) => {
-    authRoutes.post(
-      "/logout",
-      {
-        schema: {
-          response: AuthLogoutResponsesSchema,
-        },
-      },
-      async (request, reply) => {
-        return authController.logout(
-          request,
-          reply
-        )
-      })
-    done()
-  }, {
-    prefix: "/auth"
-  })
+  childServer.register(
+    (userRoutes, opts, done) => {
+      initAuthDomainRoutes(userRoutes, config.jwtToken.secret);
 
-  childServer.register((userRoutes, opts, done) => {
-    // UPDATE USER
-    userRoutes.put<{
-      Body: FromSchema<typeof UserUpdateBodySchema>;
-    }>(
-      "/",
-      {
-        schema: {
-          body: UserUpdateBodySchema,
-        },
-      },
-      async (request, reply) => {
-        return userController.update(
-          request,
-        )
-      })
+      done();
+    },
+    {
+      prefix: "/user-management",
+    }
+  );
 
-    // GET ME
-    userRoutes.get(
-      "/me",
-      {
-        schema: {},
-      },
-      async (request, reply) => {
-        return userController.getMe(
-          request,
-        )
-      })
-
-    // GET USERS LIST
-    userRoutes.get(
-      "/",
-      {
-        schema: {},
-      },
-      async (request, reply) => {
-        return userController.list()
-      })
-
-    // GET USER BY ID
-    userRoutes.get<{
-      Params: FromSchema<typeof UserGetOneParamsSchema>;
-    }>(
-      "/:id",
-      {
-        schema: {
-          params: UserGetOneParamsSchema,
-          // response: UserResponse,
-        },
-      },
-      async (request, reply) => {
-        return userController.getOne(
-          request,
-        )
-      })
-    done()
-  }, {
-    prefix: "/user"
-  })
-
-  done()
-})
+  done();
+});

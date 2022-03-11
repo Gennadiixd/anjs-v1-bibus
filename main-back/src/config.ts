@@ -1,6 +1,5 @@
-
 import dotenv from "dotenv";
-import {Env} from "utils/env";
+import { Env } from "utils/env";
 
 dotenv.config();
 
@@ -32,15 +31,15 @@ export type Config = {
     active: boolean;
   };
   jwtToken: {
-    secret: string,
-  }
+    secret: string;
+  };
 };
 
 // ENV const
 const getEnvOrThrowLogs = Env.getEnvOrThrow(console.error);
 
 // . CONFIG
-const port = process.env["PORT"]
+const port = process.env["PORT"];
 export const config: Config = {
   db: {
     connectionString: getEnvOrThrowLogs("MAIN_DB_CONNECTION_STRING"),
@@ -49,7 +48,7 @@ export const config: Config = {
   appName: "bibus",
   environment: ConfigEnv.ofString(getEnvOrThrowLogs("NODE_ENV")),
   http: {
-    port: port ? +port : 3000,
+    port: port ? +port : 4000,
     swagger: {
       active: true,
     },
@@ -59,5 +58,5 @@ export const config: Config = {
   },
   jwtToken: {
     secret: getEnvOrThrowLogs("JWT_TOKEN_SECRET"),
-  }
+  },
 };

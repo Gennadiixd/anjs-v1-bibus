@@ -13,6 +13,7 @@
     "@types/jest": "^26.0.23",
     "@types/node": "^15.12.4",
     "@types/node-fetch": "^2.5.11",
+    "@types/pg": "^8.6.5",
     "@types/prompt": "^1.1.1",
     "@types/uuid": "^8.3.0",
     "env-cmd": "^10.1.0",
@@ -39,7 +40,7 @@
     "graphql-tools": "^8.2.0",
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.95.11",
-    "pg": "^8.7.1",
+    "pg": "^8.7.3",
     "pino": "^7.8.0",
     "reflect-metadata": "^0.1.13",
     "tslib": "^2.3.0",
@@ -50,6 +51,7 @@
     "start": "NODE_PATH=./build node build/apps/main-gql/index.js",
     "test": "jest --passWithNoTests",
     "build": "rimraf build && tsc -P tsconfig.build.json",
+    "build:full": "rimraf build && tsc -P tsconfig.build.json",
     "dev:mvc": "npm run build && NODE_PATH=./build node build/index.js"
   },
   "jest": {
