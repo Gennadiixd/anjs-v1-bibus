@@ -24,7 +24,8 @@
       "modules": ["src/modules/*"],
       "libs": ["src/libs/*"],
       "apps": ["src/apps/*"],
-      "database": ["src/database"]
+      "database": ["src/database"],
+      "commands": ["src/commands"]
     }
   }
 }

@@ -1,8 +1,9 @@
+import { initAuthDomainRoutes } from "http/authentication";
+
+import { User } from "commands/models/user";
 import { config } from "config";
-import { initAuthDomainRoutes } from "controllers/authentication";
 import Fastify, { FastifyInstance } from "fastify";
 import fastifySwagger from "fastify-swagger";
-import { User } from "models/user";
 import { JWTToken } from "utils/jwt-tokens";
 import { v4 } from "uuid";
 

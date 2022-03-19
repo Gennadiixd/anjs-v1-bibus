@@ -1,12 +1,11 @@
 import "reflect-metadata";
-
-import {config} from "config";
-import {app} from "fastify-app";
-import {JwtToken} from "models/jwt-token";
-import {TempToken} from "models/temp-token";
-import {User} from "models/user";
-import {UserEmail} from "models/user-email";
-import {createConnection} from "typeorm";
+import { JwtToken } from "commands/models/jwt-token";
+import { TempToken } from "commands/models/temp-token";
+import { User } from "commands/models/user";
+import { UserEmail } from "commands/models/user-email";
+import { config } from "config";
+import { app } from "fastify-app";
+import { createConnection } from "typeorm";
 
 (async () => {
   // DB
@@ -19,15 +18,10 @@ import {createConnection} from "typeorm";
         rejectUnauthorized: false,
       },
     },
-    entities: [
-      User,
-      UserEmail,
-      TempToken,
-      JwtToken
-    ],
+    entities: [User, UserEmail, TempToken, JwtToken],
     synchronize: true,
     logging: true,
-  })
+  });
 
   await app.listen(config.http.port, "0.0.0.0");
 })();
