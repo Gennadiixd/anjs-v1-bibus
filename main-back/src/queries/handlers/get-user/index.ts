@@ -20,7 +20,7 @@ export type getUserQuery = {
   meta: {
     userId: string | null;
     createdAt: Date;
-    parentTraceId: string | null;
+    parentTraceId?: string;
     traceId: string;
   };
 };
