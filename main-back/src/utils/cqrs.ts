@@ -16,9 +16,9 @@ export type CommandOrQuery<
   meta: CommandOrQueryBaseMeta;
 };
 
-export type CommandQueryHandler<CQ extends CommandOrQuery<any, any, R>, R> = (
+export type CommandQueryHandler<CQ extends CommandOrQuery<any, any, any>> = (
   cq: CQ
-) => Promise<R>;
+) => CQ extends CommandOrQuery<any, any, infer R> ? Promise<R> : never;
 
 export type Command<
   Type extends string,
