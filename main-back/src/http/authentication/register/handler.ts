@@ -1,9 +1,12 @@
-import { User } from "commands/models/user";
-import { UserEmail } from "commands/models/user-email";
 import { FastifyRequest } from "fastify";
 import { FromSchema } from "json-schema-to-ts";
 import { SuccessResponseWR, SuccessResponse } from "utils/responses";
 
+import {
+  registerUserCommandHandler,
+  RegisterUserCommandData,
+} from "../../../commands/handlers/register-user";
+import { Email } from "../../../utils/branded-types";
 import { EmailSender } from "../email-sender";
 
 import { AuthRegisterBodySchema } from "./req-res";
@@ -15,25 +18,13 @@ export const register =
       Body: FromSchema<typeof AuthRegisterBodySchema>;
     }>
   ): Promise<SuccessResponseWR> => {
-    // . Check email
-    if (await UserEmail.checkEmailExist(request.body.email)) {
-      throw new Error(`User with email ${request.body.email} already exist`);
-    }
+    const { email } = request.body;
 
-    // . Create new user, email and passwordless token
-    const user = await User.registerUser(request.body.email);
-    await user.save();
+    registerUserCommandHandler({
+      type: "RegisterUserCommand",
+      data: RegisterUserCommandData.new(Email.ofString(email)),
+      meta: { createdAt: new Date(), traceId: request.id, userId: null },
+    });
 
-    // . Send token to email
-    const token = await user.lastTempToken();
-    const email = user.mainEmail();
-
-    if (!token || !email) {
-      throw new Error("Something went wrong");
-    }
-
-    await emailSender.sendEmail(`Your token is ${token.id}`, email.value);
-
-    // . Return User
     return SuccessResponse.create(request.id);
   };

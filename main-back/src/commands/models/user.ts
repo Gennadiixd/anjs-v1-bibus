@@ -94,20 +94,6 @@ export class User extends BaseEntity {
     return mainEmail.lastTempToken();
   }
 
-  static async registerUser(email: string) {
-    const user = new User();
-    user.id = UserId.new();
-    user.role = UserRole.USER;
-    user.emails = [];
-    user.jwtTokens = [];
-
-    const userEmail = await UserEmail.createByUser(email, user);
-
-    user.emails.push(userEmail);
-
-    return user;
-  }
-
   async createNewToken() {
     await this.mainEmail().createNewToken();
   }
@@ -156,17 +142,5 @@ export class User extends BaseEntity {
 
       this.role = newUserData.role;
     }
-  }
-
-  async changeEmail(newEmail: string) {
-    this.mainEmail().setNotMain();
-
-    const newUserEmail = await UserEmail.createByUser(newEmail, this);
-
-    this.emails.push(newUserEmail);
-  }
-
-  async changeRole(newRole: UserRole) {
-    this.role = newRole;
   }
 }
