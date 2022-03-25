@@ -2,9 +2,7 @@ import { User, UserId } from "commands/models/user";
 import { Email } from "utils/branded-types";
 import { Command } from "utils/cqrs";
 
-import { assignUserEmailToUser } from "../operations/assign-user-email-to-user";
-import { createTempToken } from "../operations/create-temp-token";
-import { createUserEmail } from "../operations/create-user-email";
+import { assignMainEmailToUser } from "../operations/assign-main-email-to-user";
 
 // export type ChangeEmailByUserCommand = {
 //   type: "ChangeEmailByUserCommand";
@@ -63,10 +61,7 @@ export const changeEmailByUserCommandHandler = async (
 
   mainEmail.main = false;
 
-  const userEmail = createUserEmail(user, newEmail);
-  const tempToken = createTempToken(userEmail);
-
-  await assignUserEmailToUser(user, tempToken, userEmail);
+  await assignMainEmailToUser(user, newEmail);
 
   // . Save user
   await user.save();

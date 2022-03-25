@@ -4,9 +4,7 @@ import { emailSender } from "email-sender";
 import { Email } from "utils/branded-types";
 import { Command } from "utils/cqrs";
 
-import { assignUserEmailToUser } from "../operations/assign-user-email-to-user";
-import { createTempToken } from "../operations/create-temp-token";
-import { createUserEmail } from "../operations/create-user-email";
+import { assignMainEmailToUser } from "../operations/assign-main-email-to-user";
 
 export type RegisterUserCommandData = {
   email: Email;
@@ -29,9 +27,7 @@ export const registerUserCommandHandler = async (
   const { email } = command.data;
 
   // . Check email
-  const [emailFromDB] = await UserEmail.find({
-    value: email,
-  });
+  const [emailFromDB] = await UserEmail.find({ value: email });
 
   if (emailFromDB) {
     throw new Error(`User with email ${email} already exist`);
@@ -44,19 +40,17 @@ export const registerUserCommandHandler = async (
   user.emails = [];
   user.jwtTokens = [];
 
-  const userEmail = createUserEmail(user, email);
-  const tempToken = createTempToken(userEmail);
-
-  await assignUserEmailToUser(user, tempToken, userEmail);
+  await assignMainEmailToUser(user, email);
 
   await user.save();
 
   // . Send token to email
   const token = await user.lastTempToken();
+  const [createdEmail] = await UserEmail.find({ value: email });
 
-  if (!token || !userEmail) {
+  if (!token || !createdEmail) {
     throw new Error("Something went wrong");
   }
 
-  await emailSender.sendEmail(`Your token is ${token.id}`, userEmail.value);
+  await emailSender.sendEmail(`Your token is ${token.id}`, createdEmail.value);
 };
