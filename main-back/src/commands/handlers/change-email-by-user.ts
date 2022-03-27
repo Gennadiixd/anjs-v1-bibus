@@ -1,7 +1,8 @@
 import { User, UserId } from "commands/models/user";
-import { UserEmail } from "commands/models/user-email";
 import { Email } from "utils/branded-types";
 import { Command } from "utils/cqrs";
+
+import { assignMainEmailToUser } from "../operations/assign-main-email-to-user";
 
 // export type ChangeEmailByUserCommand = {
 //   type: "ChangeEmailByUserCommand";
@@ -40,28 +41,28 @@ export const ChangeEmailByUserCommandData = {
 };
 
 export const changeEmailByUserCommandHandler = async (
-  changeEmailByUserCommand: ChangeEmailByUserCommand
+  command: ChangeEmailByUserCommand
 ): Promise<void> => {
-  const newEmail = changeEmailByUserCommand.data.newEmail;
-  const userIdEmailToBeChanged =
-    changeEmailByUserCommand.data.userIdEmailToBeChanged;
+  const { newEmail, userIdEmailToBeChanged } = command.data;
 
-  if (
-    await UserEmail.findOne({
-      where: {
-        value: newEmail,
-      },
-    })
-  ) {
-    throw new Error(`Email already exist`);
-  }
-
+  // . Get user
   const user = await User.findOne(userIdEmailToBeChanged);
 
   if (!user) {
     throw new Error(`User must exist`);
   }
 
-  await user.changeEmail(newEmail);
+  // . Make main email not main
+  const [mainEmail] = user.emails.filter((email) => email.main);
+
+  if (!mainEmail) {
+    throw new Error(`There is no main email`);
+  }
+
+  mainEmail.main = false;
+
+  await assignMainEmailToUser(user, newEmail);
+
+  // . Save user
   await user.save();
 };

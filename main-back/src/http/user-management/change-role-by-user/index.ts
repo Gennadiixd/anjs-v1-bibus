@@ -1,7 +1,12 @@
-import { _UserRole, User } from "commands/models/user";
+import { _UserRole, UserId } from "commands/models/user";
 import { FastifyInstance } from "fastify";
 import { FromSchema } from "json-schema-to-ts";
 import { SuccessResponse, SuccessResponseWR } from "utils/responses";
+
+import {
+  changeRoleByUserCommandHandler,
+  ChangeRoleByUserCommandData,
+} from "../../../commands/handlers/chnage-role-by-user";
 
 import {
   ChangeUserRoleBodySchema,
@@ -24,20 +29,25 @@ export const initChangeRoleByUser = (
       },
     },
     async (request): Promise<SuccessResponseWR> => {
-      if (!request.userId) {
+      const { userId } = request;
+      const newRole = request.body["new-role"];
+
+      if (!userId) {
         throw new Error(`UserId must exist`);
       }
 
-      const newRole = _UserRole.ofString(request.body["new-role"]);
-
-      const user = await User.findOne(request.userId);
-
-      if (!user) {
-        throw new Error(`User must exist`);
-      }
-
-      await user.changeRole(newRole);
-      await user.save();
+      changeRoleByUserCommandHandler({
+        type: "ChangeRoleByUserCommand",
+        data: ChangeRoleByUserCommandData.new(
+          _UserRole.ofString(newRole),
+          UserId.ofString(userId)
+        ),
+        meta: {
+          userId: UserId.ofString(userId),
+          createdAt: new Date(),
+          traceId: request.id,
+        },
+      });
 
       return SuccessResponse.create(request.id);
     }

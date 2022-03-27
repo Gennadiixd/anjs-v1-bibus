@@ -6,7 +6,6 @@ import {
   OneToMany,
   PrimaryColumn,
 } from "typeorm";
-import { v4 } from "uuid";
 
 import { TempToken } from "./temp-token";
 import { User } from "./user";
@@ -43,29 +42,6 @@ export class UserEmail extends BaseEntity {
     return (await this.tempTokens).sort(
       (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
     )[0];
-  }
-
-  static async createByUser(email: string, user: User) {
-    const userEmail = new UserEmail();
-    userEmail.id = v4();
-    userEmail.main = true;
-    userEmail.activated = false;
-    userEmail.user = user;
-    userEmail.value = email;
-
-    const tempToken = TempToken.createByUser(userEmail);
-
-    (await userEmail.tempTokens).push(tempToken);
-
-    return userEmail;
-  }
-
-  static async checkEmailExist(email: string): Promise<boolean> {
-    const userEmail = await UserEmail.find({
-      value: email,
-    });
-
-    return !!userEmail.length;
   }
 
   async createNewToken() {
