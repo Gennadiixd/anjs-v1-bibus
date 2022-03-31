@@ -1,10 +1,7 @@
 import { FastifyRequest } from "fastify";
 import { FromSchema } from "json-schema-to-ts";
-import { JWTToken } from "utils/jwt-tokens";
 import { SuccessResponse, SuccessResponseR } from "utils/responses";
 
-import { JwtTokenId } from "../../../commands/models/jwt-token/jwt-token";
-import { JwtTokenDataService } from "../../../commands/models/jwt-token/jwt-token.ds";
 import { TempTokenId } from "../../../commands/models/temp-token/temp-token";
 import { TempTokenKnexTable } from "../../../commands/models/temp-token/temp-token.ds";
 import { UserEmailId } from "../../../commands/models/user-email/user-email";
@@ -72,23 +69,25 @@ export const login =
     //   throw new Error(`No JWT Token`);
     // }
 
-    const createdJwt = {
-      id: JwtTokenId.new(),
-      logoutDate: null,
-      banDate: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      userId: "" as UserId,
-    };
+    // const createdJwt = {
+    //   id: JwtTokenId.new(),
+    //   logoutDate: null,
+    //   banDate: null,
+    //   createdAt: new Date(),
+    //   updatedAt: new Date(),
+    //   userId: "" as UserId,
+    // };
 
-    JwtTokenDataService.insert(knexConnection, createdJwt);
+    // JwtTokenDataService.insert(knexConnection, createdJwt);
 
     // . Send JWT
-    return SuccessResponse.create(request.id, {
-      token: JWTToken.sign(privateKey, {
-        id: createdJwt.id,
-        userId: createdJwt.userId,
-        userEmail: "",
-      }),
-    });
+    // return SuccessResponse.create(request.id, {
+    //   token: JWTToken.sign(privateKey, {
+    //     id: createdJwt.id,
+    //     userId: createdJwt.userId,
+    //     userEmail: "",
+    //   }),
+    // });
+
+    return SuccessResponse.create(request.id, {} as any);
   };

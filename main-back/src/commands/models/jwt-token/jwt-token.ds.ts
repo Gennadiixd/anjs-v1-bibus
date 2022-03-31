@@ -6,17 +6,56 @@ import {
 } from "../../../utils/introspected-schema";
 import { UserId } from "../user/user";
 
-import { JwtToken, JwtTokenId } from "./jwt-token";
+import { JwtToken, JwtTokenId, JwtTokenState } from "./jwt-token";
 
 export const JwtTokenDataMapper = {
   fromModel: (jwtToken: JwtToken): JwtTokenTable => {
-    return jwtToken;
+    return {
+      id: jwtToken.id,
+      logoutDate: jwtToken.state.logoutDate,
+      banDate: jwtToken.state.banDate,
+      createdAt: jwtToken.createdAt,
+      updatedAt: jwtToken.updatedAt,
+      userId: jwtToken.userId,
+    };
   },
   toModel: (jwtTokenTable: JwtTokenTable): JwtToken => {
+    const { banDate, logoutDate } = jwtTokenTable;
+
+    let state: JwtTokenState;
+
+    if (banDate && logoutDate) {
+      state = {
+        __type: "JwtTokenStateBannedAndLoggedOut",
+        banDate,
+        logoutDate,
+      };
+    } else if (banDate) {
+      state = {
+        __type: "JwtTokenStateBanned",
+        banDate,
+        logoutDate,
+      };
+    } else if (logoutDate) {
+      state = {
+        __type: "JwtTokenStateLoggedOut",
+        banDate,
+        logoutDate,
+      };
+    } else {
+      state = {
+        __type: "JwtTokenStateActive",
+        banDate,
+        logoutDate,
+      };
+    }
+
     return {
-      ...jwtTokenTable,
       id: jwtTokenTable.id as JwtTokenId,
       userId: jwtTokenTable.userId as UserId,
+      createdAt: jwtTokenTable.createdAt,
+      updatedAt: jwtTokenTable.updatedAt,
+      state,
     };
   },
 };

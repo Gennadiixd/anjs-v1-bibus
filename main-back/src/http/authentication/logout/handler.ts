@@ -1,7 +1,10 @@
 import { FastifyRequest } from "fastify";
 import { SuccessResponseWR, SuccessResponse } from "utils/responses";
 
-import { JwtTokenId } from "../../../commands/models/jwt-token/jwt-token";
+import {
+  JwtToken,
+  JwtTokenId,
+} from "../../../commands/models/jwt-token/jwt-token";
 import { JwtTokenDataService } from "../../../commands/models/jwt-token/jwt-token.ds";
 import { UserId } from "../../../commands/models/user/user";
 import { UserDataService } from "../../../commands/models/user/user.ds";
@@ -36,14 +39,7 @@ export const logout = async (
   }
 
   // assign logout date
-  JwtTokenDataService.insert(knexConnection, {
-    id: jwtToken.id,
-    logoutDate: new Date(),
-    banDate: jwtToken.banDate,
-    createdAt: jwtToken.createdAt,
-    updatedAt: jwtToken.updatedAt,
-    userId: jwtToken.userId,
-  });
+  JwtTokenDataService.insert(knexConnection, JwtToken.newLoggedOut(jwtToken));
 
   return SuccessResponse.create(request.id);
 };

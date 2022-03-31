@@ -96,10 +96,7 @@ app.register(async (childServer, opts, done) => {
       JwtTokenId.ofString(decoded.id)
     );
 
-    const isJwtTokenValid =
-      jwtToken?.logoutDate === null && jwtToken?.banDate === null;
-
-    if (!isJwtTokenValid) {
+    if (jwtToken?.state.__type !== "JwtTokenStateActive") {
       throw new Error(`Permission denied`);
     }
 
