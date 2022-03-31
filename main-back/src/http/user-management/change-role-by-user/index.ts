@@ -1,4 +1,3 @@
-import { _UserRole, UserId } from "commands/models/user";
 import { FastifyInstance } from "fastify";
 import { FromSchema } from "json-schema-to-ts";
 import { SuccessResponse, SuccessResponseWR } from "utils/responses";
@@ -7,6 +6,7 @@ import {
   changeRoleByUserCommandHandler,
   ChangeRoleByUserCommandData,
 } from "../../../commands/handlers/chnage-role-by-user";
+import { UserId, UserRole } from "../../../commands/models/user/user";
 
 import {
   ChangeUserRoleBodySchema,
@@ -39,7 +39,7 @@ export const initChangeRoleByUser = (
       changeRoleByUserCommandHandler({
         type: "ChangeRoleByUserCommand",
         data: ChangeRoleByUserCommandData.new(
-          _UserRole.ofString(newRole),
+          UserRole.ofString(newRole),
           UserId.ofString(userId)
         ),
         meta: {

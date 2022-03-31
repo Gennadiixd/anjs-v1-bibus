@@ -1,12 +1,16 @@
 import { initAuthDomainRoutes } from "http/authentication";
 
-import { User } from "commands/models/user";
 import { config } from "config";
 import Fastify, { FastifyInstance } from "fastify";
 import fastifySwagger from "fastify-swagger";
 import { JWTToken } from "utils/jwt-tokens";
 import { v4 } from "uuid";
 
+import { JwtTokenId } from "./commands/models/jwt-token/jwt-token";
+import { JwtTokenDataService } from "./commands/models/jwt-token/jwt-token.ds";
+import { UserId } from "./commands/models/user/user";
+import { UserDataService } from "./commands/models/user/user.ds";
+import { knexConnection } from "./database";
 import { logger } from "./logger";
 
 declare module "fastify" {
@@ -78,19 +82,24 @@ app.register(async (childServer, opts, done) => {
 
     const decoded = JWTToken.verify(config.jwtToken.secret, token);
 
-    const user = await User.findOne({
-      where: {
-        id: decoded.userId,
-      },
-    });
+    const user = await UserDataService.findById(
+      knexConnection,
+      UserId.ofString(decoded.userId)
+    );
 
     if (!user) {
       throw new Error(`Permission denied`);
     }
 
-    const jwtToken = await user.jwtTokenById(decoded.id);
+    const jwtToken = await JwtTokenDataService.findById(
+      knexConnection,
+      JwtTokenId.ofString(decoded.id)
+    );
 
-    if (!jwtToken || !jwtToken.active()) {
+    const isJwtTokenValid =
+      jwtToken?.logoutDate === null && jwtToken?.banDate === null;
+
+    if (!isJwtTokenValid) {
       throw new Error(`Permission denied`);
     }
 
@@ -104,9 +113,7 @@ app.register(async (childServer, opts, done) => {
 
       done();
     },
-    {
-      prefix: "/user-management",
-    }
+    { prefix: "/user-management" }
   );
 
   done();

@@ -1,22 +1,13 @@
-import { User, UserId } from "commands/models/user";
 import { Email } from "utils/branded-types";
 import { Command } from "utils/cqrs";
 
-import { assignMainEmailToUser } from "../operations/assign-main-email-to-user";
-
-// export type ChangeEmailByUserCommand = {
-//   type: "ChangeEmailByUserCommand";
-//   data: {
-//     newEmail: Email;
-//     userIdEmailToBeChanged: UserId;
-//   };
-//   meta: {
-//     userId: UserId | null;
-//     createdAt: Date;
-//     parentTraceId?: string;
-//     traceId: string;
-//   };
-// };
+import { knexConnection } from "../../database";
+import { TempToken, TempTokenId } from "../models/temp-token/temp-token";
+import { TempTokenDataService } from "../models/temp-token/temp-token.ds";
+import { UserEmail } from "../models/user-email/user-email";
+import { UserEmailDataService } from "../models/user-email/user-email.ds";
+import { UserId } from "../models/user/user";
+import { makeUserEmailNotMainDBQuery } from "../operations/user-management/make-user-mail-not-main";
 
 export type ChangeEmailByUserCommandData = {
   newEmail: Email;
@@ -45,24 +36,23 @@ export const changeEmailByUserCommandHandler = async (
 ): Promise<void> => {
   const { newEmail, userIdEmailToBeChanged } = command.data;
 
-  // . Get user
-  const user = await User.findOne(userIdEmailToBeChanged);
-
-  if (!user) {
-    throw new Error(`User must exist`);
-  }
-
   // . Make main email not main
-  const [mainEmail] = user.emails.filter((email) => email.main);
+  await makeUserEmailNotMainDBQuery(knexConnection, userIdEmailToBeChanged);
 
-  if (!mainEmail) {
-    throw new Error(`There is no main email`);
-  }
+  // . Create new email
+  const newUserEmail: UserEmail = UserEmail.newMainNotActivated(
+    userIdEmailToBeChanged,
+    newEmail
+  );
+  await UserEmailDataService.insert(knexConnection, newUserEmail);
 
-  mainEmail.main = false;
-
-  await assignMainEmailToUser(user, newEmail);
-
-  // . Save user
-  await user.save();
+  // . Create new temp token
+  const token: TempToken = {
+    id: TempTokenId.new(),
+    used: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    userEmailId: newUserEmail.id,
+  };
+  await TempTokenDataService.insert(knexConnection, token);
 };

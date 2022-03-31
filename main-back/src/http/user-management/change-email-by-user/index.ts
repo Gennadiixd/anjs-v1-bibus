@@ -7,11 +7,12 @@ import {
   ChangeEmailByUserCommandData,
   changeEmailByUserCommandHandler,
 } from "commands/handlers/change-email-by-user";
-import { UserId } from "commands/models/user";
 import { FastifyInstance } from "fastify";
 import { FromSchema } from "json-schema-to-ts";
 import { Email } from "utils/branded-types";
 import { SuccessResponse, SuccessResponseWR } from "utils/responses";
+
+import { UserId } from "../../../commands/models/user/user";
 
 export const initChangeEmailByUser = (
   app: FastifyInstance,
