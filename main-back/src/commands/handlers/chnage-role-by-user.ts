@@ -1,8 +1,12 @@
-import { User, UserId, UserRole } from "commands/models/user";
+import { UserId } from "commands/models/user/user";
 import { Command } from "utils/cqrs";
 
+import { knexConnection } from "../../database";
+import { UserTableRole } from "../../utils/introspected-schema";
+import { UserKnexTable } from "../models/user/user.ds";
+
 export type ChangeRoleByUserCommandData = {
-  newRole: UserRole;
+  newRole: UserTableRole;
   userIdRoleToBeChanged: UserId;
 };
 
@@ -13,7 +17,7 @@ export type ChangeRoleByUserCommand = Command<
 
 export const ChangeRoleByUserCommandData = {
   new: (
-    newRole: UserRole,
+    newRole: UserTableRole,
     userIdRoleToBeChanged: UserId
   ): ChangeRoleByUserCommandData => {
     return {
@@ -28,12 +32,7 @@ export const changeRoleByUserCommandHandler = async (
 ): Promise<void> => {
   const { newRole, userIdRoleToBeChanged } = command.data;
 
-  const user = await User.findOne(userIdRoleToBeChanged);
-
-  if (!user) {
-    throw new Error(`User must exist`);
-  }
-
-  user.role = newRole;
-  await user.save();
+  UserKnexTable(knexConnection)
+    .where("userId", userIdRoleToBeChanged)
+    .update({ role: newRole });
 };

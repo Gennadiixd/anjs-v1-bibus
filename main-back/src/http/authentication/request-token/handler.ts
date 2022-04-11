@@ -1,4 +1,3 @@
-import { UserEmail } from "commands/models/user-email";
 import { FastifyRequest } from "fastify";
 import { FromSchema } from "json-schema-to-ts";
 import { SuccessResponseWR, SuccessResponse } from "utils/responses";
@@ -15,37 +14,37 @@ export const requestToken =
     }>
   ): Promise<SuccessResponseWR> => {
     // . Get user email for token
-    const userEmail = await UserEmail.findOne({
-      where: {
-        main: true,
-        value: request.body.email,
-      },
-      relations: ["user"],
-    });
+    // const userEmail = await UserEmail.findOne({
+    //   where: {
+    //     main: true,
+    //     value: request.body.email,
+    //   },
+    //   relations: ["user"],
+    // });
 
-    if (!userEmail) {
-      return SuccessResponse.create(request.id);
-    }
+    // if (!userEmail) {
+    //   return SuccessResponse.create(request.id);
+    // }
 
-    const user = userEmail.user;
+    // const user = userEmail.user;
 
-    // . Create new token
-    await user.createNewToken();
+    // // . Create new token
+    // await user.createNewToken();
 
-    // . Get this last token
-    const token = await user.lastTempToken();
+    // // . Get this last token
+    // const token = await user.lastTempToken();
 
-    if (!token) {
-      throw new Error(`There is no token`);
-    }
+    // if (!token) {
+    //   throw new Error(`There is no token`);
+    // }
 
-    // . Send email with token
-    await emailSender.sendEmail(
-      `Your token is ${token.id}`,
-      user.mainEmail().value
-    );
+    // // . Send email with token
+    // await emailSender.sendEmail(
+    //   `Your token is ${token.id}`,
+    //   user.mainEmail().value
+    // );
 
-    // . Success
+    // // . Success
 
     return SuccessResponse.create(request.id);
   };

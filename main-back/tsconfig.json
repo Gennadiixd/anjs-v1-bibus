@@ -25,7 +25,8 @@
       "libs": ["src/libs/*"],
       "apps": ["src/apps/*"],
       "database": ["src/database"],
-      "commands": ["src/commands"]
+      "commands": ["src/commands"],
+      "utils": ["src/utils"]
     }
   }
 }
