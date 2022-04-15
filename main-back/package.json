@@ -49,6 +49,8 @@
   },
   "scripts": {
     "start": "NODE_PATH=./build node build/apps/main-gql/index.js",
+    "dev:querier": "npm run build && NODE_PATH=./build node build/apps/querier/index.js",
+    "dev:commander": "npm run build && NODE_PATH=./build node build/apps/commander/index.js",
     "test": "jest --passWithNoTests",
     "build": "rimraf build && tsc -P tsconfig.build.json",
     "build:full": "rimraf build && tsc -P tsconfig.build.json",

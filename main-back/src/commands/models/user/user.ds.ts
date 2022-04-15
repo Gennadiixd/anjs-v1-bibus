@@ -1,5 +1,9 @@
 import { Knex } from "knex";
-import { UserTable, UserTableName } from "utils/introspected-schema";
+
+import {
+  UserTable,
+  UserTableName,
+} from "../../../libs/@bibus/db-main/introspected-schema";
 
 import { User, UserId } from "./user";
 
