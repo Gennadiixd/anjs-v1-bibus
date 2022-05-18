@@ -1,7 +1,7 @@
-import { Email } from "utils/branded-types";
-import { UserEmailTable } from "utils/introspected-schema";
 import { v4, validate } from "uuid";
 
+import { UserEmailTable } from "../../../libs/@bibus/db-main/introspected-schema";
+import { Email } from "../../../libs/branded-types";
 import { UserId } from "../user/user";
 
 export type UserEmailId = string & { readonly UserEmailId: unique symbol };

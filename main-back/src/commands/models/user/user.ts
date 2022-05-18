@@ -1,5 +1,6 @@
-import { UserTable } from "utils/introspected-schema";
 import { v4, validate } from "uuid";
+
+import { UserTable } from "../../../libs/@bibus/db-main/introspected-schema";
 
 export type UserId = string & { readonly UserId: unique symbol };
 export const UserId = {
@@ -34,7 +35,7 @@ export const UserRole = {
     return "admin" as UserRole;
   },
   ofString: (value: string) => {
-    if (availableRoles.includes(value)) {
+    if (!availableRoles.includes(value)) {
       throw new Error("not valid user role");
     }
 

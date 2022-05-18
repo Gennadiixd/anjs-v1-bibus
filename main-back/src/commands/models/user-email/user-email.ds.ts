@@ -3,7 +3,7 @@ import { Knex } from "knex";
 import {
   UserEmailTable,
   UserEmailTableName,
-} from "../../../utils/introspected-schema";
+} from "../../../libs/@bibus/db-main/introspected-schema";
 import { UserId } from "../user/user";
 
 import { UserEmail, UserEmailId, UserEmailState } from "./user-email";
