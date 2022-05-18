@@ -24,11 +24,13 @@ export type Command<
   Type extends string,
   Data extends Record<string, any>
 > = CommandOrQuery<Type, Data, void>;
+
 export type Query<
   Type extends string,
   Data extends Record<string, any>,
   R
 > = CommandOrQuery<Type, Data, R>;
+
 export type ExceptionCommand<
   Type extends string,
   Data extends Record<string, any>,

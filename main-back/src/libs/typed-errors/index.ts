@@ -20,8 +20,8 @@ export const NOT_FOUND_ERROR = {
   type: "not_found",
   message: "Not found",
 };
-export const RECOURSE_NOT_FOUND_ERROR = {
-  type: "recourse_not_found",
+export const RESOURCE_NOT_FOUND_ERROR = {
+  type: "resource_not_found",
   message: "Resource not found",
 };
 
@@ -31,7 +31,7 @@ export const ERRORS = {
   PERMISSION_ERROR,
   VALIDATION_ERROR,
   NOT_FOUND_ERROR,
-  RECOURSE_NOT_FOUND_ERROR,
+  RESOURCE_NOT_FOUND_ERROR,
 };
 
 export abstract class BaseError extends Error {

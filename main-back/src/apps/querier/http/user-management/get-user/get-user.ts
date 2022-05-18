@@ -10,7 +10,7 @@ import { GetUserParamsSchema, GetUserResponseSchema } from "./req-res";
 
 // const handlerWithAspects = loggerAspect(pinoLogger)(getUserQueryHandler);
 
-const getUser = async (app: FastifyInstance, path: string = "/:id") => {
+async function getUser(app: FastifyInstance, path: string = "/:id") {
   app.get<{
     Params: FromSchema<typeof GetUserParamsSchema>;
     Reply: FromSchema<typeof GetUserResponseSchema["200"]>;
@@ -38,6 +38,6 @@ const getUser = async (app: FastifyInstance, path: string = "/:id") => {
       return SuccessResponse.create(request.id, result);
     }
   );
-};
+}
 
 export default getUser;
